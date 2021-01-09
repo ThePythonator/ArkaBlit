@@ -14,10 +14,10 @@
 
 #define MIN_JOYSTICK 0.2
 
-#define DEFAULT_WIDTH 10
+#define DEFAULT_WIDTH 8
 #define DEFAULT_HEALTH 3
 
-#define LEVEL_COUNT 2
+#define LEVEL_COUNT 3
 #define LEVEL_WIDTH 10
 #define LEVEL_HEIGHT 8
 
@@ -133,6 +133,32 @@ int levelLayouts[LEVEL_COUNT][LEVEL_HEIGHT][LEVEL_WIDTH] = {
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }
+    },
+    {
+        {
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        },
+        {
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        },
+        {
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        },
+        {
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        }
     }
 };
 
@@ -169,7 +195,7 @@ void render_block(Block block) {
 }
 
 void render_player() {
-    int left = player.xPosition - player.width; // fix offset?
+    int left = player.xPosition - player.width;
 
     screen.blit(screen.sprites, Rect(4, 16, 1, 4), Point(left, player.yPosition));
 
@@ -223,11 +249,11 @@ void render_hud() {
     // <levelnumber>
     screen.blit(screen.sprites, Rect(4 * (levelNumber + 1), 24, 4, 8), Point(SCREEN_WIDTH / 2 + 28, BORDER));
 
-    int multiplier = 1 + player.combo / 2;
+    int multiplier = 1 + (player.combo / 2);
 
     if (multiplier > 1) {
         // multiplier
-        screen.text("x" + std::to_string(player.combo), minimal_font, Point(BORDER * 4, BORDER * 8), true, TextAlign::center_center);
+        screen.text("x" + std::to_string(multiplier), minimal_font, Point(BORDER * 4, BORDER * 8), true, TextAlign::center_center);
     }
 }
 
@@ -315,33 +341,71 @@ void handle_block_collisions() {
                             // definitely collided, take 1 hp off the block
                             blocks.at(i).health -= 1;
 
+                            // NOTE: collision detection is bad currently. Not sure whether to use first or second block
+                            
+                            //bool continueChecking = true;
+                            //float x = ball.xPosition+1, y = ball.yPosition+1;
+
+                            //while (continueChecking) {
+                            //    continueChecking = false;
+                            //    //printf("%f %f\n", x, y);
+                            //    // now we need to check which side the ball collided with in order handle rebounds
+                            //    if (ball.yVelocity < 0 && (int)y == blocks.at(i).yPosition + SPRITE_SIZE) {
+                            //        // hit on bottom
+                            //        ball.yVelocity = std::abs(ball.yVelocity);
+                            //    }
+                            //    else if (ball.yVelocity > 0 && (int)y + SPRITE_SIZE / 2 == blocks.at(i).yPosition) {
+                            //        // hit on top
+                            //        ball.yVelocity = -std::abs(ball.yVelocity);
+                            //    }
+                            //    else if (ball.xVelocity > 0 && (int)x + SPRITE_SIZE / 2 == blocks.at(i).xPosition) {
+                            //        // hit on left
+                            //        ball.xVelocity = -std::abs(ball.xVelocity);
+                            //    }
+                            //    else if (ball.xVelocity < 0 && (int)x == blocks.at(i).xPosition + SPRITE_SIZE * 2) {
+                            //        // hit on right
+                            //        ball.xVelocity = std::abs(ball.xVelocity);
+                            //    }
+                            //    else {
+                            //        continueChecking = true;
+                            //        x -= ball.xVelocity;
+                            //        y -= ball.yVelocity;
+                            //    }
+                            //}
+
                             // now we need to check which side the ball collided with in order handle rebounds
                             if (ball.yVelocity < 0 && ball.yPosition > blocks.at(i).yPosition + SPRITE_SIZE / 2) {
                                 // hit on bottom
                                 ball.yVelocity = std::abs(ball.yVelocity);
+                                ball.yPosition = blocks.at(i).yPosition + SPRITE_SIZE;
                             }
                             else if (ball.yVelocity > 0 && ball.yPosition + SPRITE_SIZE / 2 < blocks.at(i).yPosition + SPRITE_SIZE / 2) {
                                 // hit on top
                                 ball.yVelocity = -std::abs(ball.yVelocity);
+                                ball.yPosition = blocks.at(i).yPosition - SPRITE_SIZE / 2;
                             }
                             else if (ball.xVelocity > 0 && ball.xPosition + SPRITE_SIZE / 2 < blocks.at(i).xPosition + SPRITE_SIZE) {
                                 // hit on left
                                 ball.xVelocity = -std::abs(ball.xVelocity);
+                                ball.xPosition = blocks.at(i).xPosition - SPRITE_SIZE / 2;
                             }
                             else if (ball.xVelocity < 0 && ball.xPosition > blocks.at(i).xPosition + SPRITE_SIZE) {
                                 // hit on right
                                 ball.xVelocity = std::abs(ball.xVelocity);
+                                ball.xPosition = blocks.at(i).xPosition + SPRITE_SIZE * 2;
                             }
 
                             if (!blocks.at(i).noValue && blocks.at(i).health >= 0) {
                                 // need to add points, block wasn't a wall
 
                                 // calculate multiplier, increase score by adjusted value
-                                player.score += BLOCK_VALUE * (int)(1 + player.combo / 2);
+                                player.score += BLOCK_VALUE * (1 + (int)(player.combo / 2));
 
                                 // increase combo after adjusting score
                                 player.combo += 1;
                             }
+
+                            //break; // only allow one block to be destroyed at a time?
                         }
                     }
                 }
@@ -368,7 +432,7 @@ int blocks_remaining() {
 //
 void init() {
     set_screen_mode(ScreenMode::lores);
-    screen.sprites = SpriteSheet::load(asset_sprites);
+    screen.sprites = SpriteSheet::load(asset_sprites); // may need to replace SpriteSheet with Surface
 
     player.yPosition = SCREEN_HEIGHT - BORDER * 2;
 }
@@ -457,7 +521,11 @@ void update(uint32_t time) {
 
             if (buttons.pressed & Button::A) {
                 ball.held = false;
-                ball.yVelocity = -1;
+
+                // offset xVelocity by a random amount
+                ball.xVelocity = ((rand() % 100) / 100.0) - 0.5;
+
+                ball.yVelocity = -std::sqrt(1 - (ball.xVelocity * ball.xVelocity));
             }
         }
 
@@ -465,10 +533,12 @@ void update(uint32_t time) {
 
         // Paddle collision
         if (ball.xPosition > player.xPosition - player.width - SPRITE_SIZE / 4 && ball.xPosition + SPRITE_SIZE / 2 < player.xPosition + player.width + SPRITE_SIZE / 4 && ball.yVelocity > 0) {
-            if (ball.yPosition + SPRITE_SIZE / 2 > player.yPosition && ball.yPosition < player.yPosition + SPRITE_SIZE / 2) {
+            if (ball.yPosition + SPRITE_SIZE / 2 > player.yPosition && ball.yPosition < player.yPosition) {
                 //ball.xVelocity = clamp(ball.xVelocity - ((player.xPosition - (ball.xPosition + SPRITE_SIZE / 4)) / (float)(player.width + SPRITE_SIZE / 2)), -MAX_X_VELOCITY, MAX_X_VELOCITY);
                 // new version below ----v----- deflects the ball less
-                ball.xVelocity = clamp(ball.xVelocity - ((player.xPosition - (ball.xPosition + SPRITE_SIZE / 4)) / (float)(player.width * 2)), -MAX_X_VELOCITY, MAX_X_VELOCITY);
+                //ball.xVelocity = clamp(ball.xVelocity - ((player.xPosition - (ball.xPosition + SPRITE_SIZE / 4)) / (float)(player.width * 2)), -MAX_X_VELOCITY, MAX_X_VELOCITY);
+
+                ball.xVelocity = clamp(ball.xVelocity - ((player.xPosition - (ball.xPosition + SPRITE_SIZE / 4)) / (float)(player.width + SPRITE_SIZE)), -MAX_X_VELOCITY, MAX_X_VELOCITY);
 
                 ball.yVelocity = -std::sqrt(1 - (ball.xVelocity * ball.xVelocity));
 
