@@ -432,7 +432,7 @@ int blocks_remaining() {
 //
 void init() {
     set_screen_mode(ScreenMode::lores);
-    screen.sprites = SpriteSheet::load(asset_sprites); // may need to replace SpriteSheet with Surface
+    screen.sprites = Surface::load(asset_sprites);
 
     player.yPosition = SCREEN_HEIGHT - BORDER * 2;
 }
@@ -553,11 +553,17 @@ void update(uint32_t time) {
 
         if (blocks_remaining() == 0) {
             // next level
-            start_level(levelNumber + 1);
+            if (LEVEL_COUNT > levelNumber) {
+                start_level(levelNumber + 1);
+            }
+            else {
+                start_level(0); //loop back round
+            }
         }
 
         if (player.health == 0) {
             // player died
+            state = 0;
         }
     }
 }
