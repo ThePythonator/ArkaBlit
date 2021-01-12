@@ -25,6 +25,10 @@
 
 using namespace blit;
 
+struct SaveData {
+    int highscore;
+};
+
 struct Paddle {
     float xPosition, yPosition;
 
@@ -69,6 +73,9 @@ int blocks_remaining();
 int state = 0;
 float dt;
 uint32_t lastTime = 0;
+
+
+SaveData saveData;
 
 
 int highscore = 0;
@@ -435,6 +442,16 @@ void init() {
     screen.sprites = Surface::load(asset_sprites);
 
     player.yPosition = SCREEN_HEIGHT - BORDER * 2;
+
+    // Attempt to load the first save slot.
+    if (read_save(saveData)) {
+        // Loaded sucessfully!
+        highscore = saveData.highscore;
+    }
+    else {
+        // No save file or it failed to load, set up some defaults.
+        saveData.highscore = 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -563,6 +580,9 @@ void update(uint32_t time) {
 
         if (player.health == 0) {
             // player died
+            highscore = max(highscore, player.score);
+            saveData.highscore = highscore;
+            write_save(saveData); // write highscore
             state = 0;
         }
     }
