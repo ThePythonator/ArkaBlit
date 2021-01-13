@@ -269,13 +269,16 @@ void render_ball() {
 }
 
 void start_game() {
+    debug("0 - starting game");
     player.health = DEFAULT_HEALTH;
     player.score = 0;
 
     start_level(0);
+    debug("5 - done");
 }
 
 void start_level(int levelNum) {
+    debug("1 - starting level");
     levelNumber = levelNum;
     player.xPosition = SCREEN_WIDTH / 2;
     player.width = DEFAULT_WIDTH;
@@ -286,6 +289,7 @@ void start_level(int levelNum) {
 }
 
 void reset_ball() {
+    debug("2 - resetting ball");
     ball.xPosition = player.xPosition - SPRITE_SIZE / 4;
     ball.yPosition = player.yPosition - SPRITE_SIZE / 2;
 
@@ -298,6 +302,7 @@ void reset_ball() {
 }
 
 void load_level(int levelLayout[LEVEL_HEIGHT][LEVEL_WIDTH]) {
+    debug("3 - loading level");
     blocks.clear();
 
     for (int y = 0; y < LEVEL_HEIGHT; y++) {
@@ -310,6 +315,7 @@ void load_level(int levelLayout[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 }
 
 Block generate_block(int health, int x, int y) {
+    debug("4 - generating blocks");
     Block block;
     block.health = health;
     block.xPosition = x * SPRITE_SIZE * 2;
