@@ -324,7 +324,7 @@ void start_game() {
     player.health = DEFAULT_HEALTH;
     player.score = 0;
 
-    start_level(4);
+    start_level(0);
 }
 
 void start_level(int levelNum) {
@@ -530,7 +530,9 @@ void render(uint32_t time) {
     if (state == 0) {
         screen.text("ArkaBlit", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 1 / 3), true, TextAlign::center_center); // change to custom icon
 
-        screen.text("Press A to Start", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3), true, TextAlign::center_center);
+        screen.text("Highscore: " + std::to_string(highscore), minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3), true, TextAlign::center_center);
+
+        screen.text("Press A to Start", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5), true, TextAlign::center_center);
     }
     else if (state == 1) {
         render_blocks();
