@@ -17,7 +17,7 @@
 #define DEFAULT_WIDTH 8
 #define DEFAULT_HEALTH 3
 
-#define LEVEL_COUNT 3
+#define LEVEL_COUNT 5
 #define LEVEL_WIDTH 10
 #define LEVEL_HEIGHT 8
 
@@ -166,6 +166,58 @@ int levelLayouts[LEVEL_COUNT][LEVEL_HEIGHT][LEVEL_WIDTH] = {
         {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }
+    },
+    {
+        {
+            1, 2, 3, 2, 3, 3, 2, 3, 2, 1
+        },
+        {
+            1, 1, 2, 3, 4, 4, 3, 2, 1, 1
+        },
+        {
+            0, 1, 1, 2, 6, 6, 2, 1, 1, 0
+        },
+        {
+            0, 0, 2,-1,-1,-1,-1, 2, 0, 0
+        },
+        {
+            2, 0, 0, 2, 6, 6, 2, 0, 0, 2
+        },
+        {
+           -1,-1,-2,-2, 2, 2,-2,-2,-1,-1
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        }
+    },
+    {
+        {
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+        },
+        {
+            6, 6, 6,-1, 6, 6,-1, 6, 6, 6
+        },
+        {
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+        },
+        {
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+        },
+        {
+            6, 6,-1, 6, 6, 6, 6,-1, 6, 6
+        },
+        {
+            6, 6, 6,-1,-1,-1,-1, 6, 6, 6
+        },
+        {
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+        },
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        }
     }
 };
 
@@ -269,16 +321,13 @@ void render_ball() {
 }
 
 void start_game() {
-    debug("0 - starting game");
     player.health = DEFAULT_HEALTH;
     player.score = 0;
 
-    start_level(0);
-    debug("5 - done");
+    start_level(4);
 }
 
 void start_level(int levelNum) {
-    debug("1 - starting level");
     levelNumber = levelNum;
     player.xPosition = SCREEN_WIDTH / 2;
     player.width = DEFAULT_WIDTH;
@@ -289,7 +338,6 @@ void start_level(int levelNum) {
 }
 
 void reset_ball() {
-    debug("2 - resetting ball");
     ball.xPosition = player.xPosition - SPRITE_SIZE / 4;
     ball.yPosition = player.yPosition - SPRITE_SIZE / 2;
 
@@ -302,7 +350,6 @@ void reset_ball() {
 }
 
 void load_level(int levelLayout[LEVEL_HEIGHT][LEVEL_WIDTH]) {
-    debug("3 - loading level");
     blocks.clear();
 
     for (int y = 0; y < LEVEL_HEIGHT; y++) {
@@ -315,7 +362,6 @@ void load_level(int levelLayout[LEVEL_HEIGHT][LEVEL_WIDTH]) {
 }
 
 Block generate_block(int health, int x, int y) {
-    debug("4 - generating blocks");
     Block block;
     block.health = health;
     block.xPosition = x * SPRITE_SIZE * 2;
@@ -352,7 +398,9 @@ void handle_block_collisions() {
                     if (ball.xPosition + SPRITE_SIZE / 2 > blocks.at(i).xPosition && ball.xPosition < blocks.at(i).xPosition + SPRITE_SIZE * 2) {
                         if (ball.yPosition + SPRITE_SIZE / 2 > blocks.at(i).yPosition && ball.yPosition < blocks.at(i).yPosition + SPRITE_SIZE) {
                             // definitely collided, take 1 hp off the block
-                            blocks.at(i).health -= 1;
+                            if (blocks.at(i).health > 0) {
+                                blocks.at(i).health -= 1;
+                            }
 
                             // NOTE: collision detection is bad currently. Not sure whether to use first or second block
                             
