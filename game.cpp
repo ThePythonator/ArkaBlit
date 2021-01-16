@@ -23,6 +23,10 @@
 
 #define BLOCK_VALUE 5
 
+#define TITLE_WORDS 2
+#define TITLE_WIDTH 15
+#define TITLE_HEIGHT 5
+
 using namespace blit;
 
 struct SaveData {
@@ -87,6 +91,43 @@ Ball ball;
 std::vector<Block> blocks;
 
 Surface* background = Surface::load(asset_background);
+
+uint8_t title[TITLE_WORDS][TITLE_HEIGHT][TITLE_WIDTH] = {
+    {
+        {
+            0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0
+        },
+        {
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        },
+        {
+            1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1
+        },
+        {
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        },
+        {
+            1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        }
+    },
+    {
+        {
+            1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1
+        },
+        {
+            1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0
+        },
+        {
+            1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0
+        },
+        {
+            1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0
+        },
+        {
+            1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0
+        }
+    }
+};
 
 int levelLayouts[LEVEL_COUNT][LEVEL_HEIGHT][LEVEL_WIDTH] = {
     {
@@ -485,6 +526,28 @@ int blocks_remaining() {
     return total;
 }
 
+void render_title() {
+    int left = SCREEN_WIDTH / 2 - (TITLE_WIDTH * SPRITE_SIZE) / 2;
+    int top = SPRITE_SIZE;
+
+    int x, y;
+
+    for (int i = 0; i < TITLE_WORDS; i++) {
+        for (int j = 0; j < TITLE_HEIGHT; j++) {
+            y = j * SPRITE_SIZE + top;
+
+            for (int k = 0; k < TITLE_WIDTH; k++) {
+                x = k * SPRITE_SIZE + left;
+
+                if (title[i][j][k]) {
+                    screen.sprite(64, Point(x, y));
+                }
+            }
+        }
+        top += (TITLE_HEIGHT + 1) * SPRITE_SIZE;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // init()
@@ -528,11 +591,12 @@ void render(uint32_t time) {
     screen.blit(background, Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Point(0, 0), false);
 
     if (state == 0) {
-        screen.text("ArkaBlit", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 1 / 3), true, TextAlign::center_center); // change to custom icon
+        //screen.text("ArkaBlit", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 1 / 3), true, TextAlign::center_center); // change to custom icon
+        render_title();
 
-        screen.text("Highscore: " + std::to_string(highscore), minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3), true, TextAlign::center_center);
+        //screen.text("Highscore: " + std::to_string(highscore), minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3), true, TextAlign::center_center);
 
-        screen.text("Press A to Start", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5), true, TextAlign::center_center);
+        screen.text("Press A to Start", minimal_font, Point(SCREEN_WIDTH / 2, SCREEN_HEIGHT - SPRITE_SIZE * 1.5), true, TextAlign::center_center);
     }
     else if (state == 1) {
         render_blocks();
