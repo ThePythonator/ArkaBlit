@@ -5,5 +5,10 @@ splash:
   file: assets/no-image.png
 icon:
   file: assets/no-icon.png
+<<<<<<< HEAD
 version: v0.4.0
 
+=======
+version: v0.3.1
+category: game
+>>>>>>> 9d6d48b33f10413d8deaaffb6003cb7c09417c14
