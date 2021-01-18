@@ -2,8 +2,8 @@ title: ArkaBlit
 description: Break the blocks.
 author: ThePythonator
 splash:
-  file: assets/no-image.png
+  file: assets/image.png
 icon:
-  file: assets/no-icon.png
-version: v0.4.1
+  file: assets/icon.png
+version: v0.4.2
 category: game
