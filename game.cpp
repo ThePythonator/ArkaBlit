@@ -27,6 +27,12 @@
 #define TITLE_WIDTH 15
 #define TITLE_HEIGHT 5
 
+#define ID_WEIGHT_LENGTH 2
+
+#define POWERUP_CHANCE 6
+
+#define POWERUP_FALL_RATE 20
+
 using namespace blit;
 
 struct SaveData {
@@ -61,8 +67,16 @@ struct Ball {
     bool held;
 };
 
+struct Powerup {
+    uint8_t id;
+
+    float xPosition, yPosition;
+};
+
 void render_blocks();
 void render_block(Block);
+void render_powerups();
+void render_powerup(Powerup);
 void render_player();
 void render_hud();
 void render_ball();
@@ -89,6 +103,7 @@ int levelNumber;
 Paddle player;
 Ball ball;
 std::vector<Block> blocks;
+std::vector<Powerup> powerups;
 
 Surface* background = Surface::load(asset_background);
 
@@ -128,6 +143,8 @@ uint8_t title[TITLE_WORDS][TITLE_HEIGHT][TITLE_WIDTH] = {
         }
     }
 };
+
+uint8_t idWeights[ID_WEIGHT_LENGTH] = { 0, 1 };
 
 int levelLayouts[LEVEL_COUNT][LEVEL_HEIGHT][LEVEL_WIDTH] = {
     {
@@ -294,6 +311,21 @@ void render_block(Block block) {
     }
 }
 
+void render_powerups() {
+    for (int i = 0; i < powerups.size(); i++) {
+        render_powerup(powerups.at(i));
+    }
+}
+
+void render_powerup(Powerup powerup) {
+    if (powerup.id == 0) {
+        screen.blit(screen.sprites, Rect(8, 16, 24, 4), Point(powerup.xPosition - 12, powerup.yPosition - 2));
+    }
+    else if (powerup.id == 1) {
+        screen.blit(screen.sprites, Rect(32, 16, 16, 4), Point(powerup.xPosition - 8, powerup.yPosition - 2));
+    }
+}
+
 void render_player() {
     int left = player.xPosition - player.width;
 
@@ -422,6 +454,17 @@ Block generate_block(int health, int x, int y) {
     return block;
 }
 
+Powerup get_powerup(int x, int y) {
+    Powerup powerup;
+
+    powerup.id = idWeights[rand() % ID_WEIGHT_LENGTH];
+
+    powerup.xPosition = x;
+    powerup.yPosition = y;
+
+    return powerup;
+}
+
 bool colliding(Block block) {
     return (ball.xPosition + SPRITE_SIZE / 2 > block.xPosition && ball.xPosition < block.xPosition + SPRITE_SIZE * 2) && (ball.yPosition + SPRITE_SIZE / 2 > block.yPosition && ball.yPosition < block.yPosition + SPRITE_SIZE);
 }
@@ -482,8 +525,12 @@ void handle_block_collisions() {
 
                             // increase combo after adjusting score
                             player.combo += 1;
+
+                            if (blocks.at(i).health == 0 && rand() % POWERUP_CHANCE == 0) {
+                                // create powerup
+                                powerups.push_back(get_powerup(blocks.at(i).xPosition + SPRITE_SIZE, blocks.at(i).yPosition + SPRITE_SIZE / 2));
+                            }
                         }
-                        
                     }
                 }
             }
@@ -575,6 +622,8 @@ void render(uint32_t time) {
     }
     else if (state == 1) {
         render_blocks();
+
+        render_powerups();
 
         render_player();
 
@@ -679,6 +728,32 @@ void update(uint32_t time) {
             saveData.highscore = highscore;
             write_save(saveData); // write highscore
             state = 0;
+        }
+
+        for (int i = 0; i < powerups.size(); i++) {
+            powerups.at(i).yPosition += POWERUP_FALL_RATE * dt;
+        }
+
+        if (powerups.size() > 0) {
+
+            if (powerups.at(0).yPosition > player.yPosition && powerups.at(0).xPosition - SPRITE_SIZE < player.xPosition + player.width && powerups.at(0).xPosition + SPRITE_SIZE > player.xPosition - player.width) {
+                // player collected powerup
+
+                if (powerups.at(0).id == 0) {
+                    player.width += 2;
+                }
+                else if (powerups.at(0).id == 1) {
+                    player.width -= 2;
+                }
+
+                player.width = clamp(player.width, DEFAULT_WIDTH - 4, DEFAULT_WIDTH + 4);
+
+                powerups.erase(powerups.begin());
+            }
+            else if (powerups.at(0).yPosition > SCREEN_HEIGHT + 2) {
+                // powerup fell off screen
+                powerups.erase(powerups.begin());
+            }
         }
     }
 }
