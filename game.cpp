@@ -27,7 +27,7 @@
 #define TITLE_WIDTH 15
 #define TITLE_HEIGHT 5
 
-#define ID_WEIGHT_LENGTH 2
+#define ID_WEIGHT_LENGTH 6
 
 #define POWERUP_CHANCE 6
 
@@ -144,7 +144,7 @@ uint8_t title[TITLE_WORDS][TITLE_HEIGHT][TITLE_WIDTH] = {
     }
 };
 
-uint8_t idWeights[ID_WEIGHT_LENGTH] = { 0, 1 };
+uint8_t idWeights[ID_WEIGHT_LENGTH] = { 0, 0, 1, 1, 1, 2 };
 
 int levelLayouts[LEVEL_COUNT][LEVEL_HEIGHT][LEVEL_WIDTH] = {
     {
@@ -323,6 +323,9 @@ void render_powerup(Powerup powerup) {
     }
     else if (powerup.id == 1) {
         screen.blit(screen.sprites, Rect(32, 16, 16, 4), Point(powerup.xPosition - 8, powerup.yPosition - 2));
+    }
+    else if (powerup.id == 2) {
+        screen.sprite(47, Point(powerup.xPosition - 4, powerup.yPosition - 4));
     }
 }
 
@@ -744,6 +747,11 @@ void update(uint32_t time) {
                 }
                 else if (powerups.at(0).id == 1) {
                     player.width -= 2;
+                }
+                else if (powerups.at(0).id == 2) {
+                    if (player.health < DEFAULT_HEALTH) {
+                        player.health++;
+                    }
                 }
 
                 player.width = clamp(player.width, DEFAULT_WIDTH - 4, DEFAULT_WIDTH + 4);
