@@ -744,14 +744,20 @@ void update(uint32_t time) {
 
                 if (powerups.at(0).id == 0) {
                     player.width += 2;
+
+                    player.score += 2;
                 }
                 else if (powerups.at(0).id == 1) {
                     player.width -= 2;
+
+                    player.score -= 2;
                 }
                 else if (powerups.at(0).id == 2) {
                     if (player.health < DEFAULT_HEALTH) {
                         player.health++;
                     }
+
+                    player.score += 3;
                 }
 
                 player.width = clamp(player.width, DEFAULT_WIDTH - 4, DEFAULT_WIDTH + 4);
