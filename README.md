@@ -6,4 +6,6 @@ It's not Arkanoid.
 
 ## Controls
 
-Nothing to see here....
+Joystick/d-pad to move paddle.
+
+A to launch ball.
